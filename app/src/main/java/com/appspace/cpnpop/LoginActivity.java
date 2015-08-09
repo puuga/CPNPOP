@@ -29,6 +29,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.parse.ParseAnalytics;
 
 import org.apache.http.Header;
 import org.json.JSONException;
@@ -36,6 +37,8 @@ import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -99,6 +102,12 @@ public class LoginActivity extends AppCompatActivity {
     private void getFacebookUserInfo(final LoginResult loginResult) {
         Log.d("FBonS", "user id:" + loginResult.getAccessToken().getUserId());
         Log.d("FBonS", "user token:" + loginResult.getAccessToken().getToken());
+
+        Map<String, String> dimensions = new HashMap<String, String>();
+        // What type of news is this?
+        dimensions.put("user_id", loginResult.getAccessToken().getUserId());
+        // Send the dimensions to Parse along with the 'read' event
+        ParseAnalytics.trackEventInBackground("facebook_login", dimensions);
 
         final String facebookToken = loginResult.getAccessToken().getToken();
 
