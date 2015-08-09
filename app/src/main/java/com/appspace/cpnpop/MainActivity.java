@@ -45,7 +45,6 @@ import com.appspace.cpnpop.model.CustomLocation;
 import com.appspace.cpnpop.model.IBeacon;
 import com.appspace.cpnpop.model.WifiData;
 import com.crashlytics.android.Crashlytics;
-import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements
 
         Map<String, String> dimensions = new HashMap<String, String>();
         // What type of news is this?
-        dimensions.put("debug_or_release", BuildConfig.DEBUG?"debug":"release");
+        dimensions.put("debug_or_release", BuildConfig.DEBUG ? "debug" : "release");
         // Send the dimensions to Parse along with the 'read' event
         ParseAnalytics.trackEventInBackground("app_type", dimensions);
     }
@@ -258,10 +257,6 @@ public class MainActivity extends AppCompatActivity implements
         registerReceiver(wifiBroadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
         getExtra();
-
-        // Facebook
-        // Logs 'install' and 'app activate' App Events.
-        AppEventsLogger.activateApp(this);
     }
 
     @Override
@@ -269,17 +264,15 @@ public class MainActivity extends AppCompatActivity implements
         super.onPause();
 
         unregisterReceiver(wifiBroadcastReceiver);
-
-        // Facebook
-        // Logs 'app deactivate' App Event.
-        AppEventsLogger.deactivateApp(this);
     }
 
     private void getExtra() {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            if (extras.containsKey(StoreLocation.LOCATION_ID) && extras.getString(StoreLocation.LOCATION_ID, "") != "") {
-                String temp = Constant.getkWebUrl(settingHelper) + "&geo_id=" + extras.getString(StoreLocation.LOCATION_ID);
+            if (extras.containsKey(StoreLocation.LOCATION_ID)
+                    && !extras.getString(StoreLocation.LOCATION_ID, "").equals("")) {
+                String temp = Constant.getkWebUrl(settingHelper)
+                        + "&geo_id=" + extras.getString(StoreLocation.LOCATION_ID);
                 Toast.makeText(this, temp, Toast.LENGTH_LONG).show();
 //                Log.d("geourl", temp);
                 loadWebView(temp);
@@ -336,17 +329,18 @@ public class MainActivity extends AppCompatActivity implements
 
     private void exitAppWithDialog() {
         // Log.d("exit", "exitAppWithDialog");
-        new AlertDialog.Builder(this)
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setMessage("City App need Internet access. Please connect to the Internet.")
                 .setTitle("Can not access the Internet")
-                .setMessage("City App need Internet access. Please connect to the Internet.")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        MainActivity.this.finish();
-                    }
-                })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setCancelable(false)
-                .show();
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        MainActivity.this.finish();
+                    }
+                });
+        dialog.show();
     }
 
     private void checkInternetAvailable() {
@@ -568,7 +562,8 @@ public class MainActivity extends AppCompatActivity implements
         // check facebook login
         if (!settingHelper.getFacebookLoginStatus()) {
             Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             //finish();
         } else {
@@ -586,7 +581,8 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, MainActivity.class);
         //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent activity = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent activity = PendingIntent
+                .getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)

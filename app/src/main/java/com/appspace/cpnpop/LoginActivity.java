@@ -1,6 +1,8 @@
 package com.appspace.cpnpop;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -143,6 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                             loginCity(LoginManager.getParamsByFacebookGraph(object, facebookToken));
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            exitAppWithDialog(Constant.SOURCE_FACEBOOK);
                         }
                     }
                 });
@@ -153,9 +156,36 @@ public class LoginActivity extends AppCompatActivity {
         request.executeAsync();
     }
 
+    private void exitAppWithDialog(String source) {
+        // Log.d("exit", "exitAppWithDialog");
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        String message = "Can not login";
+        String title = "Sorry";
+
+        if (source.equals(Constant.SOURCE_FACEBOOK)) {
+            message = message.concat(" via Facebook.");
+        }
+
+        dialog.setMessage(message)
+                .setTitle(title)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_HOME);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                });
+        dialog.show();
+    }
+
     private void loginCity(RequestParams params) {
         AsyncHttpClient client = new AsyncHttpClient();
-        client.post(Constant.kAPIBaseUrl, params, new JsonHttpResponseHandler() {
+        client.post(Constant.kAPIBaseUrl,
+                params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("JSONObject", response.toString());
@@ -178,7 +208,8 @@ public class LoginActivity extends AppCompatActivity {
                         settingHelper.setFacebookToken(response.getString("facebook_token"));
 
                         Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                     } else {
                         Log.d("callback", statusCode + ":" + response.toString());

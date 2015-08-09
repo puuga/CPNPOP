@@ -12,6 +12,8 @@ public class Constant {
     public static final String facebook_token = "facebook_token";
     public static final String userID = "userID";
 
+    public static final String SOURCE_FACEBOOK = "facebook";
+
     // public static final String kAPIBaseUrl = "http://128.199.172.185/cityapp/register_user.php";
     // public static final String kAPIBaseUrl = "http://citylogin.azurewebsites.net/register_user.php";
     public static final String kAPIBaseUrl = "http://128.199.133.166/roomlink/register_user.php";
